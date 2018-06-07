@@ -14,6 +14,7 @@ JWT的声明一般被用来在身份提供者和服务提供者间传递被认�
 3.生成秘钥 php artisan jwt:secret ，此命令会在你的 .env 文件中新增一行 JWT_SECRET=secret
 
 4.配置 Auth guard ，在 config/auth.php 文件中，你需要将 guards/driver 更新为 jwt：<br/>
+
 ```php
 'defaults' =>
  
@@ -32,39 +33,40 @@ JWT的声明一般被用来在身份提供者和服务提供者间传递被认�
     
 ],
 ```
+
 <h3>更改model</h3>
 如果需要使用 jwt-auth 作为用户认证，我们需要对我们的 User 模型进行一点小小的改变，实现一个接口，变更后的 User 模型如下：
 <p>User.php</p>
+
 ```php
-    
-    namespace App;
-    
-    use Tymon\JWTAuth\Contracts\JWTSubject;
-    use Illuminate\Notifications\Notifiable;
-    use Illuminate\Foundation\Auth\User as Authenticatable;
-    
-    class User extends Authenticatable implements JWTSubject
+namespace App;
+
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable implements JWTSubject
+{
+    use Notifiable;
+    // Rest omitted for brevity
+    /**
+     *
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
     {
-        use Notifiable;
-        // Rest omitted for brevity
-        /**
-         *
-         * Get the identifier that will be stored in the subject claim of the JWT.
-         *
-         * @return mixed
-         */
-        public function getJWTIdentifier()
-        {
-            return $this->getKey();
-        }
-        /**
-         * Return a key value array, containing any custom claims to be added to the JWT.
-         *
-         *
-         * @return array
-         */
-        public function getJWTCustomClaims() {
-            return [];
-        }
+        return $this->getKey();
     }
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims() {
+        return [];
+    }
+}
 ```
